@@ -37,7 +37,7 @@ public class VocabularyTopic {
   @Column(name = "last_modified")
   private LocalDateTime last_modified;
 
-  @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0")
+  @Column(name = "is_deleted")
   private Boolean is_deleted;
 
   @ManyToOne(fetch = FetchType.EAGER)

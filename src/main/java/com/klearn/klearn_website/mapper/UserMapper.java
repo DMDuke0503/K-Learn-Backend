@@ -12,9 +12,17 @@ public interface UserMapper {
   @Select("SELECT * FROM users WHERE email = #{email} OR username = #{username}")
   User findByUsernameOrEmail(@Param("email") String email, @Param("username") String username);
 
+  // Find a user by id
+  @Select("SELECT * FROM users WHERE id = #{user_id}")
+  User findUserById(@Param("user_id") Integer userId);
+
+  // Get Role
+  @Select("SELECT role FROM users WHERE email = #{email} OR username = #{username}")
+  Integer getRole(@Param("email") String email, @Param("username") String username);
+
   // Create a new user
-  @Insert("INSERT INTO users (username, password, email, fullname, dob, gender, last_login, last_modified) " +
-          "VALUES (#{username}, #{password}, #{email}, #{fullname}, #{dob}, #{gender}, #{last_login}, #{last_modified})")
+  @Insert("INSERT INTO users (username, password, email, fullname, dob, gender, type, last_login, last_modified) " +
+          "VALUES (#{username}, #{password}, #{email}, #{fullname}, #{dob}, #{gender}, #{type}, #{last_login}, #{last_modified})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void createUser(User user);
 
