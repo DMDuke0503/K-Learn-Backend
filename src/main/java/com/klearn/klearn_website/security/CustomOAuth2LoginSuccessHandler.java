@@ -1,8 +1,8 @@
 package com.klearn.klearn_website.security;
 
-import com.klearn.klearn_website.mapper.UserMapper;
 import com.klearn.klearn_website.model.User;
 import com.klearn.klearn_website.service.auth.OAuth2UserService;
+import com.klearn.klearn_website.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,17 +22,18 @@ import java.nio.charset.StandardCharsets;
 public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final OAuth2UserService oAuth2UserService;
-    private final UserMapper userMapper;
+    private final UserService userService;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
 
         String token = oAuth2UserService.processOAuthPostLogin(email, oAuth2User);
-        
-        User user = userMapper.findByUsernameOrEmail(email, email);
-        
+
+        User user = userService.getUser(email).orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
         String role;
 
         switch (user.getRole()) {
@@ -46,11 +47,10 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
                 role = "content-management";
         }
         String redirectUrl = String.format(
-            "http://localhost:5173/oauth2/redirect?token=%s&role=%s&type=%s",
-            java.net.URLEncoder.encode(token, StandardCharsets.UTF_8.name()),
-            java.net.URLEncoder.encode(role, StandardCharsets.UTF_8.name()),
-            java.net.URLEncoder.encode(user.getType(), StandardCharsets.UTF_8.name())
-        );
+                "http://localhost:5173/oauth2/redirect?token=%s&role=%s&type=%s",
+                java.net.URLEncoder.encode(token, StandardCharsets.UTF_8.name()),
+                java.net.URLEncoder.encode(role, StandardCharsets.UTF_8.name()),
+                java.net.URLEncoder.encode(user.getType(), StandardCharsets.UTF_8.name()));
 
         response.sendRedirect(redirectUrl);
     }

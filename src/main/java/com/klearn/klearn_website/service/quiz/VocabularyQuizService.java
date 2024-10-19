@@ -15,56 +15,55 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class VocabularyQuizService {
-  private VocabularyProgressMapper vocabularyProgressMapper;
+    private VocabularyProgressMapper vocabularyProgressMapper;
 
-  public List<VocabularyQuestionDTOOut> createVocabularyQuiz(Integer userId, Integer topicId) {
-    List<VocabularyProgress> listVocabulary = vocabularyProgressMapper.getVocabularyProgressByUserIdAndTopicId(userId, topicId);
+    public List<VocabularyQuestionDTOOut> createVocabularyQuiz(Integer userId, Integer topicId) {
+        List<VocabularyProgress> listVocabulary = vocabularyProgressMapper
+                .getVocabularyProgressByUserIdAndTopicId(userId, topicId);
 
-    List<String> definitions = new ArrayList<>();
-    
-    listVocabulary.forEach(vocabularyProgress -> {
-      definitions.add(vocabularyProgress.getVocabulary().getDefinition());
-    });
+        List<String> definitions = new ArrayList<>();
 
-    List<VocabularyQuestionDTOOut> listQuestions = new ArrayList<>();
+        listVocabulary.forEach(vocabularyProgress -> {
+            definitions.add(vocabularyProgress.getVocabulary().getDefinition());
+        });
+        
+        List<VocabularyQuestionDTOOut> listQuestions = new ArrayList<>();
 
-    listVocabulary.forEach(vocabularyProgress -> {
-      if (vocabularyProgress.getIs_learned() == false) {
-        Integer vocabularyId = vocabularyProgress.getVocabulary().getId();
-        String word = vocabularyProgress.getVocabulary().getWord();
-        String definition = vocabularyProgress.getVocabulary().getDefinition();
+        listVocabulary.forEach(vocabularyProgress -> {
+            if (vocabularyProgress.getIs_learned() == false) {
+                Integer vocabularyId = vocabularyProgress.getVocabulary().getId();
+                String word = vocabularyProgress.getVocabulary().getWord();
+                String definition = vocabularyProgress.getVocabulary().getDefinition();
 
-        List<String> options = new ArrayList<>();
-        options.add(definition);
+                List<String> options = new ArrayList<>();
+                options.add(definition);
 
-        while (options.size() < 4) {
-          String randomDefinition = definitions.get((int) (Math.random() * definitions.size()));
+                while (options.size() < 4) {
+                    String randomDefinition = definitions.get((int) (Math.random() * definitions.size()));
 
-          if (!options.contains(randomDefinition)) {
-            options.add(randomDefinition);
-          }
-        }
+                    if (!options.contains(randomDefinition)) {
+                        options.add(randomDefinition);
+                    }
+                }
 
-        Collections.shuffle(options);
+                Collections.shuffle(options);
 
-        listQuestions.add(new VocabularyQuestionDTOOut(
-          vocabularyId,
-          "multichoice",
-          word,
-          definition,
-          options
-        ));
+                listQuestions.add(new VocabularyQuestionDTOOut(
+                        vocabularyId,
+                        "multichoice",
+                        word,
+                        definition,
+                        options));
 
-        listQuestions.add(new VocabularyQuestionDTOOut(
-          vocabularyId,
-          "essay",
-          word,
-          definition,
-          Collections.emptyList()
-        ));
-      }
-    });
+                listQuestions.add(new VocabularyQuestionDTOOut(
+                        vocabularyId,
+                        "essay",
+                        word,
+                        definition,
+                        Collections.emptyList()));
+            }
+        });
 
-    return listQuestions;
-  }
+        return listQuestions;
+    }
 }

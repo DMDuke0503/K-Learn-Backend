@@ -18,19 +18,28 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/api/quiz")
 public class VocabularyQuizController {
-  
-  private VocabularyQuizService vocabularyQuizService;
-  private UserService userService;
 
-  @GetMapping("/vocabulary/{topicId}")
-  public ResponseEntity<List<VocabularyQuestionDTOOut>> createVocabularyQuiz(@PathVariable Integer topicId) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String username = authentication.getName();
+    private final VocabularyQuizService vocabularyQuizService;
+    private final UserService userService;
 
-    User user = userService.getUser(username);  
+    /**
+     * Creates a new vocabulary quiz for a specific topic.
+     *
+     * @param topicId The ID of the vocabulary topic.
+     * @return ResponseEntity containing the list of VocabularyQuestionDTOOut
+     *         objects representing the quiz.
+     */
+    @GetMapping("/vocabulary/{topicId}")
+    public ResponseEntity<List<VocabularyQuestionDTOOut>> createVocabularyQuiz(@PathVariable Integer topicId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
-    List<VocabularyQuestionDTOOut> listQuestions = vocabularyQuizService.createVocabularyQuiz(user.getId(), topicId);
+        User user = userService.getUser(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
 
-    return ResponseEntity.ok(listQuestions);
-  }
+        List<VocabularyQuestionDTOOut> listQuestions = vocabularyQuizService.createVocabularyQuiz(user.getId(),
+                topicId);
+
+        return ResponseEntity.ok(listQuestions);
+    }
 }

@@ -31,24 +31,33 @@ public class VocabularyProgress {
     private Boolean is_deleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("user_id")  // Maps the user_id from the embedded ID
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("vocabulary_id")  // Maps the vocabulary_id from the embedded ID
     @JoinColumn(name = "vocabulary_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Vocabulary vocabulary;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("topic_id")  // Maps the topic_id from the embedded ID
     @JoinColumn(name = "topic_id", referencedColumnName = "id", insertable = false, updatable = false)
     private VocabularyTopic vocabularyTopic;
 
     @Embeddable
     public static class VocabularyProgressId implements Serializable {
+        @Column(name = "user_id")
         private Integer user_id;
+
+        @Column(name = "vocabulary_id")
         private Integer vocabulary_id;
+
+        @Column(name = "topic_id")
         private Integer topic_id;
 
-        public VocabularyProgressId() {}
+        public VocabularyProgressId() {
+        }
 
         public VocabularyProgressId(Integer user_id, Integer vocabulary_id, Integer topic_id) {
             this.user_id = user_id;
@@ -58,8 +67,10 @@ public class VocabularyProgress {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             VocabularyProgressId that = (VocabularyProgressId) o;
             return Objects.equals(user_id, that.user_id) &&
                     Objects.equals(vocabulary_id, that.vocabulary_id) &&

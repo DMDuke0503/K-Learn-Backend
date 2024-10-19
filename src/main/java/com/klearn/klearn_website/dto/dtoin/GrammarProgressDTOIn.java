@@ -7,13 +7,10 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+public class GrammarProgressDTOIn {
+    Integer user_id;
 
-public class MyCourseDTOIn {
-    private Integer user_id;
-
-    private Integer course_id;
-
-    private String payment_status;
+    Integer gammar_id;
 }

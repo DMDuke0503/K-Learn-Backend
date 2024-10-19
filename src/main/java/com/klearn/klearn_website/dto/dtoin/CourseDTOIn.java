@@ -5,11 +5,13 @@ import java.math.BigDecimal;
 
 @Data
 public class CourseDTOIn {
-  String course_name;
+    String course_name;
 
-  String course_level;
+    String course_level;
 
-  String course_description;
+    String course_description;
 
-  BigDecimal course_price;
+    String course_image;
+
+    BigDecimal course_price;
 }

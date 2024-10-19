@@ -2,34 +2,36 @@ package com.klearn.klearn_website.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "vocabulary_topic")
-public class VocabularyTopic {
 
+@Entity
+@Table(name = "question_grammar")
+public class QuestionGrammar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "topic_name", nullable = false, length = 50)
-    private String topic_name;
+    @Column(name = "question_text")
+    private String question_text;
 
-    @Column(name = "topic_description", columnDefinition = "TEXT")
-    private String topic_description;
+    @Column(name = "correct_answer")
+    private String correct_answer;
 
-    @Column(name = "topic_image", columnDefinition = "TEXT")
-    private String topic_image;
+    @Column(name = "incorrect_answer")
+    private String incorrect_answer;
+
+    @Column(name = "quiz_type")
+    private String quiz_type;
 
     @Column(name = "created_at")
     private LocalDateTime created_at;
@@ -37,10 +39,10 @@ public class VocabularyTopic {
     @Column(name = "last_modified")
     private LocalDateTime last_modified;
 
-    @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0")
+    @Column(name = "is_deleted")
     private Boolean is_deleted;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "course_id", referencedColumnName = "id", nullable = false)
-    private Course course;
+    @JoinColumn(name = "grammar_id", referencedColumnName = "id", nullable = false)
+    private Grammar grammar;
 }
