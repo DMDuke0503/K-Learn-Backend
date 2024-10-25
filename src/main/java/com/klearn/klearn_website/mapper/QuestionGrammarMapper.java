@@ -20,7 +20,7 @@ public interface QuestionGrammarMapper {
     void updateQuestionGrammar(QuestionGrammar questionGrammar);
 
     // Soft delete a QuestionGrammar entry
-    @Update("UPDATE question_grammar SET is_deleted = 1, last_modified = NOW() WHERE id = #{id}")
+    @Update("UPDATE question_grammar SET is_deleted = 1, last_modified = GETDATE() WHERE id = #{id}")
     void softDeleteQuestionGrammar(Integer id);
 
     // Permanently delete a QuestionGrammar entry
@@ -58,7 +58,7 @@ public interface QuestionGrammarMapper {
     QuestionGrammar getQuestionById(@Param("id") Integer id);
 
     // Check if a QuestionGrammar entry exists by grammar ID
-    @Select("SELECT COUNT(*) > 0 FROM question_grammar WHERE grammar_id = #{grammar_id} AND is_deleted = 0")
+    @Select("SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM question_grammar WHERE grammar_id = #{grammar_id} AND is_deleted = 0")
     boolean existsByGrammarId(@Param("grammar_id") Integer grammarId);
 
     // Get all active QuestionGrammar entries

@@ -27,7 +27,8 @@ public class GrammarProgress {
     @Column(name = "is_finish_quiz", nullable = false)
     private Boolean is_finish_quiz;
 
-    @Column(name = "last_modified")
+    // Mapping LocalDateTime to DATETIME2 for SQL Server compatibility
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
     @Column(name = "is_deleted", nullable = false)
@@ -51,8 +52,13 @@ public class GrammarProgress {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GrammarProgressId implements Serializable {
+        @Column(name = "user_id")
         private Integer user_id;
+
+        @Column(name = "grammar_id")
         private Integer grammar_id;
+
+        @Column(name = "course_id")
         private Integer course_id;
 
         @Override

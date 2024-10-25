@@ -8,19 +8,17 @@ import java.util.List;
 public interface MyCourseMapper {
 
     // Insert a new MyCourse entry
-    @Insert("INSERT INTO my_course (user_id, course_id, date_registration, payment_status, last_modified, is_deleted) "
-            +
+    @Insert("INSERT INTO my_course (user_id, course_id, date_registration, payment_status, last_modified, is_deleted) " +
             "VALUES (#{id.user_id}, #{id.course_id}, #{date_registration}, #{payment_status}, #{last_modified}, #{is_deleted})")
     void insertMyCourse(MyCourse myCourse);
 
     // Update an existing MyCourse entry
-    @Update("UPDATE my_course SET payment_status = #{payment_status}, last_modified = #{last_modified}, is_deleted = #{is_deleted} "
-            +
+    @Update("UPDATE my_course SET payment_status = #{payment_status}, last_modified = #{last_modified}, is_deleted = #{is_deleted} " +
             "WHERE user_id = #{id.user_id} AND course_id = #{id.course_id}")
     void updateMyCourse(MyCourse myCourse);
 
-    // Soft delete a MyCourse entry by setting is_deleted to true
-    @Update("UPDATE my_course SET is_deleted = 1, last_modified = NOW() " +
+    // Soft delete a MyCourse entry by setting is_deleted to 1
+    @Update("UPDATE my_course SET is_deleted = 1, last_modified = GETDATE() " +
             "WHERE user_id = #{user_id} AND course_id = #{course_id}")
     void softDeleteMyCourse(@Param("user_id") Integer userId, @Param("course_id") Integer courseId);
 
@@ -77,7 +75,7 @@ public interface MyCourseMapper {
     MyCourse getMyCourseByUserIdAndCourseId(@Param("user_id") Integer userId, @Param("course_id") Integer courseId);
 
     // Check if a MyCourse entry exists by user ID and course ID
-    @Select("SELECT COUNT(*) > 0 " +
+    @Select("SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END " +
             "FROM my_course mc " +
             "WHERE mc.user_id = #{user_id} AND mc.course_id = #{course_id} AND mc.is_deleted = 0")
     boolean existsMyCourseByUserIdAndCourseId(@Param("user_id") Integer userId, @Param("course_id") Integer courseId);

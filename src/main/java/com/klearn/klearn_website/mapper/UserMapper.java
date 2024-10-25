@@ -37,16 +37,16 @@ public interface UserMapper {
     void createUser(User user);
 
     @Update("UPDATE users SET username = #{username}, email = #{email}, fullname = #{fullname}, dob = #{dob}, " +
-            "gender = #{gender}, avatar = #{avatar}, role = #{role}, type = #{type}, last_modified = NOW() " +
+            "gender = #{gender}, avatar = #{avatar}, role = #{role}, type = #{type}, last_modified = GETDATE() " +
             "WHERE id = #{id}")
     void updateUser(User user);
 
-    @Update("UPDATE users SET password = #{password}, last_modified = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET password = #{password}, last_modified = GETDATE() WHERE id = #{id}")
     void updatePassword(@Param("id") Integer id, @Param("password") String password);
 
-    @Update("UPDATE users SET is_deleted = 1, last_modified = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET is_deleted = 1, last_modified = GETDATE() WHERE id = #{id}")
     void softDeleteUser(@Param("id") Integer id);
 
-    @Update("UPDATE users SET is_deleted = 0, last_modified = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET is_deleted = 0, last_modified = GETDATE() WHERE id = #{id}")
     void unDeleteUser(@Param("id") Integer id);
 }

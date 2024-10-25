@@ -36,10 +36,11 @@ public class Course {
     @Column(name = "course_price", precision = 18, scale = 2)
     private BigDecimal course_price;
 
-    @Column(name = "created_at")
+    // For SQL Server, ensure the correct mapping to DATETIME2
+    @Column(name = "created_at", columnDefinition = "DATETIME2")
     private LocalDateTime created_at;
 
-    @Column(name = "last_modified")
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
     @Column(name = "is_deleted")

@@ -27,10 +27,10 @@ public interface CourseMapper {
     // Update course details
     @Update("UPDATE courses SET course_name = #{course_name}, course_level = #{course_level}, course_description = #{course_description}, "
             +
-            "course_image = #{course_image}, course_price = #{course_price}, last_modified = NOW() WHERE id = #{id} AND is_deleted = 0")
+            "course_image = #{course_image}, course_price = #{course_price}, last_modified = CURRENT_TIMESTAMP WHERE id = #{id} AND is_deleted = 0")
     void updateCourse(Course course);
 
     // Soft delete a course by setting is_deleted = 1
-    @Update("UPDATE courses SET is_deleted = 1, last_modified = NOW() WHERE id = #{courseId}")
+    @Update("UPDATE courses SET is_deleted = 1, last_modified = CURRENT_TIMESTAMP WHERE id = #{courseId}")
     void softDeleteCourse(@Param("courseId") Integer courseId);
 }

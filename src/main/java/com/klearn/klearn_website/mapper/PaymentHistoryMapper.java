@@ -11,13 +11,15 @@ import java.util.Optional;
 public interface PaymentHistoryMapper {
 
     // Insert a new payment
-    @Insert("INSERT INTO payment_history (date_transaction, transaction_price, transaction_status, last_modified, is_deleted, user_id, course_id)"
-            + "VALUES (#{date_transaction}, #{transaction_price}, #{transaction_status}, #{last_modified}, #{is_deleted}, #{user.id}, #{course.id})")
+    @Insert("INSERT INTO payment_history (date_transaction, transaction_price, transaction_status, last_modified, is_deleted, user_id, course_id) " +
+            "VALUES (#{date_transaction}, #{transaction_price}, #{transaction_status}, #{last_modified}, #{is_deleted}, #{user.id}, #{course.id})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertPaymentHistory(PaymentHistory paymentHistory);
 
     // Find by Id
-    @Select("SELECT ph.*, c.* FROM payment_history ph JOIN courses c ON ph.course_id = c.id WHERE ph.id = #{id} AND ph.is_deleted = false")
+    @Select("SELECT ph.*, c.* FROM payment_history ph " +
+            "JOIN courses c ON ph.course_id = c.id " +
+            "WHERE ph.id = #{id} AND ph.is_deleted = 0")
     @Results({
             @Result(property = "id", column = "id"),
             @Result(property = "date_transaction", column = "date_transaction"),
@@ -40,11 +42,11 @@ public interface PaymentHistoryMapper {
     })
     Optional<PaymentHistory> findById(Integer id);
 
-    // Get all transaction by userId
-    @Select("SELECT * FROM payment_history WHERE user_id = #{userId} AND is_deleted = false")
+    // Get all transactions by userId
+    @Select("SELECT * FROM payment_history WHERE user_id = #{userId} AND is_deleted = 0")
     List<PaymentHistory> findByUserId(Integer userId);
 
     // Soft Delete
-    @Update("UPDATE payment_history SET is_deleted = true WHERE id = #{id}")
+    @Update("UPDATE payment_history SET is_deleted = 1, last_modified = GETDATE() WHERE id = #{id}")
     void deleteById(Integer id);
 }

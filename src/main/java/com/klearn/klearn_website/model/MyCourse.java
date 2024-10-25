@@ -21,17 +21,19 @@ public class MyCourse {
     @EmbeddedId
     private MyCourseId id;
 
-    @Column(name = "date_registration")
+    // Use DATETIME2 for SQL Server compatibility
+    @Column(name = "date_registration", columnDefinition = "DATETIME2")
     private LocalDateTime date_registration;
 
     @Column(name = "payment_status")
     private String payment_status;
 
-    @Column(name = "last_modified")
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    @Column(name = "is_deleted")
-    private Boolean is_deleted;
+    // Set a default value for is_deleted
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean is_deleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -43,7 +45,11 @@ public class MyCourse {
 
     @Embeddable
     public static class MyCourseId implements Serializable {
+
+        @Column(name = "user_id")
         private Integer user_id;
+
+        @Column(name = "course_id")
         private Integer course_id;
 
         public MyCourseId() {

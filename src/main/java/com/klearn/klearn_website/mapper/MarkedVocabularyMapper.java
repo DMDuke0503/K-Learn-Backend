@@ -17,7 +17,7 @@ public interface MarkedVocabularyMapper {
     void insertMarkedVocabulary(MarkedVocabulary markedVocabulary);
 
     // Find by ID
-    @Select("SELECT * FROM marked_vocabulary WHERE id = #{id} AND is_deleted = false")
+    @Select("SELECT * FROM marked_vocabulary WHERE id = #{id} AND is_deleted = 0")
     Optional<MarkedVocabulary> findById(Integer id);
 
     // Find all Marked Vocabularies for a User
@@ -28,7 +28,7 @@ public interface MarkedVocabularyMapper {
         FROM marked_vocabulary mv
         JOIN users u ON mv.user_id = u.id
         JOIN vocabulary v ON mv.vocabulary_id = v.id
-        WHERE mv.user_id = #{userId} AND mv.is_deleted = false
+        WHERE mv.user_id = #{userId} AND mv.is_deleted = 0
     """)
     @Results({
         @Result(property = "id", column = "id"),
@@ -51,11 +51,11 @@ public interface MarkedVocabularyMapper {
     List<MarkedVocabulary> findAllByUserId(Integer userId);
 
     // Find Marked Vocabulary for a User
-    @Select("SELECT * FROM marked_vocabulary WHERE user_id = #{userId} AND vocabulary_id = #{vocabulary_id} AND is_deleted = false")
+    @Select("SELECT * FROM marked_vocabulary WHERE user_id = #{userId} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
     Optional<MarkedVocabulary> findAllByUserIdAndVocabId(Integer userId, Integer vocabulary_id);
 
     // Delete by ID (Soft Delete)
-    @Update("UPDATE marked_vocabulary SET is_deleted = true WHERE id = #{id}")
+    @Update("UPDATE marked_vocabulary SET is_deleted = 1 WHERE id = #{id}")
     void deleteById(Integer id);
 
     // Update last modified timestamp

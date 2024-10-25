@@ -64,13 +64,13 @@ public interface VocabularyProgressMapper {
 
     // Update vocabulary progress entry by ID
     @Update("UPDATE vocabulary_progress " +
-            "SET is_learned = #{is_learned}, last_modified = NOW(), is_deleted = #{is_deleted} " +
+            "SET is_learned = #{is_learned}, last_modified = GETDATE(), is_deleted = #{is_deleted} " +
             "WHERE user_id = #{id.user_id} AND vocabulary_id = #{id.vocabulary_id} AND topic_id = #{id.topic_id}")
     void updateVocabularyProgress(VocabularyProgress vocabularyProgress);
 
     // Mark a vocabulary entry as learned
     @Update("UPDATE vocabulary_progress " +
-            "SET is_learned = true, last_modified = NOW() " +
+            "SET is_learned = 1, last_modified = GETDATE() " +
             "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
     void markVocabularyAsLearned(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId,
             @Param("vocabulary_id") Integer vocabularyId);
@@ -88,7 +88,7 @@ public interface VocabularyProgressMapper {
     Integer countVocabularyLearned(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId);
 
     // Soft delete a vocabulary progress entry by setting is_deleted to 1
-    @Update("UPDATE vocabulary_progress SET is_deleted = 1, last_modified = NOW() " +
+    @Update("UPDATE vocabulary_progress SET is_deleted = 1, last_modified = GETDATE() " +
             "WHERE user_id = #{user_id} AND vocabulary_id = #{vocabulary_id} AND topic_id = #{topic_id}")
     void softDeleteVocabularyProgress(@Param("user_id") Integer userId, @Param("vocabulary_id") Integer vocabularyId,
             @Param("topic_id") Integer topicId);

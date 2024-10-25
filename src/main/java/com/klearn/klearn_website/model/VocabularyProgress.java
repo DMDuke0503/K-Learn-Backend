@@ -22,9 +22,10 @@ public class VocabularyProgress {
     private VocabularyProgressId id;
 
     @Column(name = "is_learned", nullable = false)
-    private Boolean is_learned;
+    private Boolean is_learned = false;
 
-    @Column(name = "last_modified")
+    // Use DATETIME2 for better precision in SQL Server
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
     @Column(name = "is_deleted", nullable = false)
@@ -67,14 +68,12 @@ public class VocabularyProgress {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
             VocabularyProgressId that = (VocabularyProgressId) o;
             return Objects.equals(user_id, that.user_id) &&
-                    Objects.equals(vocabulary_id, that.vocabulary_id) &&
-                    Objects.equals(topic_id, that.topic_id);
+                   Objects.equals(vocabulary_id, that.vocabulary_id) &&
+                   Objects.equals(topic_id, that.topic_id);
         }
 
         @Override

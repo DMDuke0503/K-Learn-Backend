@@ -1,7 +1,6 @@
 package com.klearn.klearn_website.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -31,16 +30,16 @@ public class VocabularyTopic {
     @Column(name = "topic_image", columnDefinition = "TEXT")
     private String topic_image;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "DATETIME2")
     private LocalDateTime created_at;
 
-    @Column(name = "last_modified")
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0")
-    private Boolean is_deleted;
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean is_deleted = false;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY) // Changed to LAZY for better performance
     @JoinColumn(name = "course_id", referencedColumnName = "id", nullable = false)
     private Course course;
 }

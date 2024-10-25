@@ -1,7 +1,6 @@
 package com.klearn.klearn_website.model;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,16 +14,19 @@ import lombok.Setter;
 @Entity
 @Table(name = "marked_vocabulary")
 public class MarkedVocabulary {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "last_modified")
+    // Use DATETIME2 for SQL Server compatibility
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    @Column(name = "is_deleted")
-    private Boolean is_deleted;
+    // Set a default value for is_deleted
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean is_deleted = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
@@ -33,5 +35,4 @@ public class MarkedVocabulary {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vocabulary_id", referencedColumnName = "id", nullable = false)
     private Vocabulary vocabulary;
-
 }

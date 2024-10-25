@@ -42,7 +42,7 @@ public interface GrammarMapper {
     // Retrieve all Grammar entries by Course ID
     @Select("SELECT g.*, c.* FROM grammar g " +
             "JOIN courses c ON g.course_id = c.id " +
-            "WHERE g.course_id = #{course_id} AND g.is_deleted = 0")
+            "WHERE g.course_id = #{courseId} AND g.is_deleted = 0")
     @Results({
             @Result(property = "id", column = "id"),
             @Result(property = "grammar_name", column = "grammar_name"),
@@ -63,23 +63,23 @@ public interface GrammarMapper {
             @Result(property = "course.last_modified", column = "last_modified"),
             @Result(property = "course.is_deleted", column = "is_deleted")
     })
-    List<Grammar> getAllByCourseId(@Param("course_id") Integer courseId);
+    List<Grammar> getAllByCourseId(@Param("courseId") Integer courseId);
 
     // Retrieve a Grammar entry by ID
-    @Select("SELECT * FROM grammar WHERE id = #{grammar_id} AND is_deleted = 0")
-    Grammar getGrammarById(@Param("grammar_id") Integer grammarId);
+    @Select("SELECT * FROM grammar WHERE id = #{grammarId} AND is_deleted = 0")
+    Grammar getGrammarById(@Param("grammarId") Integer grammarId);
 
     // Update an existing Grammar entry
-    @Update("UPDATE grammar SET course_id = #{course.id}, grammar_name = #{grammar_name}, grammar_description = #{grammar_description}, " +
-            "explanation = #{explanation}, example = #{example}, lesson_number = #{lesson_number}, last_modified = #{last_modified}, is_deleted = #{is_deleted} " +
-            "WHERE id = #{id} AND is_deleted = 0")
+    @Update("UPDATE grammar SET course_id = #{course.id}, grammar_name = #{grammar_name}, grammar_description = #{grammar_description}, "
+            + "explanation = #{explanation}, example = #{example}, lesson_number = #{lesson_number}, last_modified = #{last_modified}, is_deleted = #{is_deleted} "
+            + "WHERE id = #{id} AND is_deleted = 0")
     void updateGrammar(Grammar grammar);
 
     // Soft delete a Grammar entry by setting is_deleted to true
-    @Update("UPDATE grammar SET is_deleted = 1, last_modified = NOW() WHERE id = #{grammar_id}")
-    void softDeleteGrammar(@Param("grammar_id") Integer grammarId);
+    @Update("UPDATE grammar SET is_deleted = 1, last_modified = CURRENT_TIMESTAMP WHERE id = #{grammarId}")
+    void softDeleteGrammar(@Param("grammarId") Integer grammarId);
 
     // Permanently delete a Grammar entry
-    @Delete("DELETE FROM grammar WHERE id = #{grammar_id}")
-    void deleteGrammarPermanently(@Param("grammar_id") Integer grammarId);
+    @Delete("DELETE FROM grammar WHERE id = #{grammarId}")
+    void deleteGrammarPermanently(@Param("grammarId") Integer grammarId);
 }

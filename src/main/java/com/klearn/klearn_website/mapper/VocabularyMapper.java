@@ -62,11 +62,11 @@ public interface VocabularyMapper {
 
     // Update vocabulary entry by ID
     @Update("UPDATE vocabulary SET word = #{word}, definition = #{definition}, transcription = #{transcription}, " +
-            "image = #{image}, last_modified = NOW() WHERE id = #{id} AND is_deleted = 0")
+            "image = #{image}, last_modified = GETDATE() WHERE id = #{id} AND is_deleted = 0")
     void updateVocabulary(Vocabulary vocabulary);
 
     // Soft delete a vocabulary entry by setting is_deleted to 1
-    @Update("UPDATE vocabulary SET is_deleted = 1, last_modified = NOW() WHERE id = #{id}")
+    @Update("UPDATE vocabulary SET is_deleted = 1, last_modified = GETDATE() WHERE id = #{id}")
     void softDeleteVocabulary(@Param("id") Integer id);
 
     // Permanently delete a vocabulary entry

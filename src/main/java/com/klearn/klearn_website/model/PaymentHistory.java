@@ -17,25 +17,29 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "payment_history")
 public class PaymentHistory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "date_transaction")
+    // Use DATETIME2 for SQL Server compatibility
+    @Column(name = "date_transaction", columnDefinition = "DATETIME2")
     private LocalDateTime date_transaction;
 
-    @Column(name = "transaction_price")
+    // Specify precision and scale for BigDecimal mapping in SQL Server
+    @Column(name = "transaction_price", precision = 18, scale = 2)
     private BigDecimal transaction_price;
 
     @Column(name = "transaction_status")
     private String transaction_status;
 
-    @Column(name = "last_modified")
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    @Column(name = "is_deleted")
-    private Boolean is_deleted;
+    // Set a default value for is_deleted
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean is_deleted = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)

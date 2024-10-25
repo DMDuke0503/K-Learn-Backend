@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -28,33 +29,36 @@ public class User {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", length = 255)
     private String password;
 
     @Column(name = "fullname", length = 100)
     private String fullname;
 
-    @Column(name = "dob")
+    @Column(name = "dob", columnDefinition = "DATE")
     private LocalDate dob;
 
     @Column(name = "avatar", length = 255)
     private String avatar;
 
-    @Column(name = "gender")
+    @Column(name = "gender", length = 10)
     private String gender;
 
-    @Column(name = "last_login")
+    // Use DATETIME2 for SQL Server compatibility
+    @Column(name = "last_login", columnDefinition = "DATETIME2")
     private LocalDateTime last_login;
 
-    @Column(name = "last_modified")
+    @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0")
-    private Boolean is_deleted;
+    // Set default value for is_deleted
+    @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0", nullable = false)
+    private Boolean is_deleted = false;
 
+    // Set default value for role
     @Column(name = "role", nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer role = 0; // 0: learner, 1: admin, 2: content-management
 
-    @Column(name = "type")
+    @Column(name = "type", length = 50)
     private String type;
 }
