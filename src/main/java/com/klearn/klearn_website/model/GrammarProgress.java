@@ -27,6 +27,9 @@ public class GrammarProgress {
     @Column(name = "is_finish_quiz", nullable = false)
     private Boolean is_finish_quiz;
 
+    @Column(name = "is_failed_quiz", nullable = false)
+    private Boolean is_failed_quiz;
+
     // Mapping LocalDateTime to DATETIME2 for SQL Server compatibility
     @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;

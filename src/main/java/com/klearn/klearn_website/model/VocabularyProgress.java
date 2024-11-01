@@ -24,6 +24,9 @@ public class VocabularyProgress {
     @Column(name = "is_learned", nullable = false)
     private Boolean is_learned = false;
 
+    @Column(name = "is_proficient", nullable = false)
+    private Boolean is_proficient;
+
     // Use DATETIME2 for better precision in SQL Server
     @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;

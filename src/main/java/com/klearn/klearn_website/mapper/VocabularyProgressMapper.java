@@ -2,34 +2,32 @@ package com.klearn.klearn_website.mapper;
 
 import com.klearn.klearn_website.model.VocabularyProgress;
 import org.apache.ibatis.annotations.*;
-
 import java.util.List;
 
 @Mapper
 public interface VocabularyProgressMapper {
 
     // Create a new vocabulary progress entry
-    @Insert("INSERT INTO vocabulary_progress (user_id, vocabulary_id, topic_id, is_learned, last_modified, is_deleted) "
-            +
-            "VALUES (#{id.user_id}, #{id.vocabulary_id}, #{id.topic_id}, #{is_learned}, #{last_modified}, #{is_deleted})")
+    @Insert("INSERT INTO vocabulary_progress (user_id, vocabulary_id, topic_id, is_learned, is_proficient, last_modified, is_deleted) "
+            + "VALUES (#{id.user_id}, #{id.vocabulary_id}, #{id.topic_id}, #{is_learned}, #{is_proficient}, #{last_modified}, #{is_deleted})")
     void insertVocabularyProgress(VocabularyProgress vocabularyProgress);
 
     // Read vocabulary progress entries by user ID and topic ID
-    @Select("SELECT vp.user_id, vp.vocabulary_id, vp.topic_id, vp.is_learned, vp.last_modified, vp.is_deleted, " +
-            "v.id AS vocabulary_id, v.word, v.definition, v.transcription, v.image, v.last_modified AS vocabulary_last_modified, v.is_deleted AS vocabulary_is_deleted, "
-            +
-            "u.id AS user_id, u.username, " +
-            "vt.id AS topic_id, vt.topic_name, vt.topic_description " +
-            "FROM vocabulary_progress vp " +
-            "JOIN vocabulary v ON vp.vocabulary_id = v.id " +
-            "JOIN users u ON vp.user_id = u.id " +
-            "JOIN vocabulary_topic vt ON vp.topic_id = vt.id " +
-            "WHERE vp.user_id = #{user_id} AND vp.topic_id = #{topic_id} AND vp.is_deleted = 0")
+    @Select("SELECT vp.user_id, vp.vocabulary_id, vp.topic_id, vp.is_learned, vp.is_proficient, vp.last_modified, vp.is_deleted, "
+            + "v.id AS vocabulary_id, v.word, v.definition, v.transcription, v.image, v.last_modified AS vocabulary_last_modified, v.is_deleted AS vocabulary_is_deleted, "
+            + "u.id AS user_id, u.username, "
+            + "vt.id AS topic_id, vt.topic_name, vt.topic_description "
+            + "FROM vocabulary_progress vp "
+            + "JOIN vocabulary v ON vp.vocabulary_id = v.id "
+            + "JOIN users u ON vp.user_id = u.id "
+            + "JOIN vocabulary_topic vt ON vp.topic_id = vt.id "
+            + "WHERE vp.user_id = #{user_id} AND vp.topic_id = #{topic_id} AND vp.is_deleted = 0")
     @Results({
             @Result(property = "id.user_id", column = "user_id"),
             @Result(property = "id.vocabulary_id", column = "vocabulary_id"),
             @Result(property = "id.topic_id", column = "topic_id"),
             @Result(property = "is_learned", column = "is_learned"),
+            @Result(property = "is_proficient", column = "is_proficient"),
             @Result(property = "last_modified", column = "last_modified"),
             @Result(property = "is_deleted", column = "is_deleted"),
 
@@ -58,38 +56,52 @@ public interface VocabularyProgressMapper {
             @Param("topic_id") Integer topicId);
 
     // Check if a vocabulary progress entry exists
-    @Select("SELECT COUNT(1) FROM vocabulary_progress WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
+    @Select("SELECT CASE WHEN EXISTS (SELECT 1 FROM vocabulary_progress WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0) THEN 1 ELSE 0 END")
     boolean existsByUserIdAndTopicId(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId,
             @Param("vocabulary_id") Integer vocabularyId);
 
     // Update vocabulary progress entry by ID
-    @Update("UPDATE vocabulary_progress " +
-            "SET is_learned = #{is_learned}, last_modified = GETDATE(), is_deleted = #{is_deleted} " +
-            "WHERE user_id = #{id.user_id} AND vocabulary_id = #{id.vocabulary_id} AND topic_id = #{id.topic_id}")
+    @Update("UPDATE vocabulary_progress "
+            + "SET is_learned = #{is_learned}, is_proficient = #{is_proficient}, last_modified = GETDATE(), is_deleted = #{is_deleted} "
+            + "WHERE user_id = #{id.user_id} AND vocabulary_id = #{id.vocabulary_id} AND topic_id = #{id.topic_id}")
     void updateVocabularyProgress(VocabularyProgress vocabularyProgress);
 
     // Mark a vocabulary entry as learned
-    @Update("UPDATE vocabulary_progress " +
-            "SET is_learned = 1, last_modified = GETDATE() " +
-            "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
+    @Update("UPDATE vocabulary_progress "
+            + "SET is_learned = 1, last_modified = GETDATE() "
+            + "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
     void markVocabularyAsLearned(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId,
             @Param("vocabulary_id") Integer vocabularyId);
 
+    // Mark a vocabulary entry as proficient
+    @Update("UPDATE vocabulary_progress "
+            + "SET is_learned = 1, is_proficient = 1, last_modified = GETDATE() "
+            + "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
+    void markVocabularyAsProficient(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId,
+            @Param("vocabulary_id") Integer vocabularyId);
+
+    // Mark a vocabulary entry as not proficient
+    @Update("UPDATE vocabulary_progress "
+            + "SET is_learned = 1, is_proficient = 0, last_modified = GETDATE() "
+            + "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND vocabulary_id = #{vocabulary_id} AND is_deleted = 0")
+    void markVocabularyAsNotProficient(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId,
+            @Param("vocabulary_id") Integer vocabularyId);
+
     // Count vocabulary entries that are not learned
-    @Select("SELECT COUNT(*) FROM vocabulary_progress " +
-            "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND is_deleted = 0 " +
-            "AND is_learned = 0")
+    @Select("SELECT COUNT(*) FROM vocabulary_progress "
+            + "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND is_deleted = 0 "
+            + "AND is_learned = 0")
     Integer countVocabularyNotLearned(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId);
 
     // Count vocabulary entries that are learned
-    @Select("SELECT COUNT(*) FROM vocabulary_progress " +
-            "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND is_deleted = 0 " +
-            "AND is_learned = 1")
+    @Select("SELECT COUNT(*) FROM vocabulary_progress "
+            + "WHERE user_id = #{user_id} AND topic_id = #{topic_id} AND is_deleted = 0 "
+            + "AND is_learned = 1")
     Integer countVocabularyLearned(@Param("user_id") Integer userId, @Param("topic_id") Integer topicId);
 
     // Soft delete a vocabulary progress entry by setting is_deleted to 1
-    @Update("UPDATE vocabulary_progress SET is_deleted = 1, last_modified = GETDATE() " +
-            "WHERE user_id = #{user_id} AND vocabulary_id = #{vocabulary_id} AND topic_id = #{topic_id}")
+    @Update("UPDATE vocabulary_progress SET is_deleted = 1, last_modified = GETDATE() "
+            + "WHERE user_id = #{user_id} AND vocabulary_id = #{vocabulary_id} AND topic_id = #{topic_id}")
     void softDeleteVocabularyProgress(@Param("user_id") Integer userId, @Param("vocabulary_id") Integer vocabularyId,
             @Param("topic_id") Integer topicId);
 

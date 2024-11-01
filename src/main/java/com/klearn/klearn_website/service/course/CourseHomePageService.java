@@ -10,6 +10,7 @@ import com.klearn.klearn_website.service.grammar.GrammarProgressService;
 import com.klearn.klearn_website.service.grammar.GrammarService;
 import com.klearn.klearn_website.service.user.UserService;
 import com.klearn.klearn_website.service.vocabulary.VocabularyProgressService;
+import com.klearn.klearn_website.service.vocabulary.VocabularyService;
 import com.klearn.klearn_website.service.vocabulary.VocabularyTopicService;
 
 import lombok.AllArgsConstructor;
@@ -33,16 +34,14 @@ public class CourseHomePageService {
     private final MyCourseService myCourseService;
     private final VocabularyProgressService vocabularyProgressService;
     private final GrammarProgressService grammarProgressService;
+    private final VocabularyService vocabularyService;
 
-
-    public String getDataHomePage(Integer userId) {
+    public String getTopicSection() {
         try {
 
             List<Course> listCourses = courseService.getAllCourses();
 
             Map<String, Object> responseData = new HashMap<>();
-            Map<String, Object> topicsSection = new HashMap<>();
-            Map<String, Object> progressSection = new HashMap<>();
 
             // Get all vocabulary topics and grammar in one call per course
             List<VocabularyTopic> allTopics = new ArrayList<>();
@@ -57,63 +56,9 @@ public class CourseHomePageService {
             List<Map<String, Object>> vocabTopicList = prepareVocabularyTopicData(allTopics);
             List<Map<String, Object>> grammarList = prepareGrammarData(allGrammars);
 
-            topicsSection.put("topic_vocab", vocabTopicList);
-            topicsSection.put("grammar", grammarList);
-            responseData.put("topic_section", topicsSection);
+            responseData.put("topic_vocab", vocabTopicList);
+            responseData.put("grammar", grammarList);
 
-            // Validate that the user exists
-            Optional<User> user = userService.getUserById(userId);
-            if (!user.isEmpty()) {
-                List<MyCourse> listMyCourses = myCourseService.getAllCourseByUserId(userId);
-                // Populate Progress Section
-                if (!listMyCourses.isEmpty()) {
-                    List<Map<String, Object>> vocabProgressList = new ArrayList<>();
-                    List<Map<String, Object>> grammarProgressList = new ArrayList<>();
-
-                    for (MyCourse myCourse : listMyCourses) {
-                        Integer courseId = myCourse.getCourse().getId();
-
-                        // Calculate Vocabulary Progress for each topic in the course
-                        List<VocabularyTopic> vocabTopics = vocabularyTopicService
-                                .getVocabularyTopicsByCourseId(courseId);
-                        for (VocabularyTopic topic : vocabTopics) {
-                            int vocabularyProgress = calculateProgress(
-                                    vocabularyProgressService.countVocabularyLearned(userId, topic.getId()),
-                                    vocabularyProgressService.countVocabularyNotLearned(userId, topic.getId()));
-
-                            if (vocabularyProgress > 0 && vocabularyProgress < 100) {
-                                Map<String, Object> vocabProgressData = new HashMap<>();
-                                vocabProgressData.put("topic_id", topic.getId());
-                                vocabProgressData.put("topic_name", topic.getTopic_name());
-                                vocabProgressData.put("course_id", topic.getCourse().getId());
-                                vocabProgressData.put("course_name", topic.getCourse().getCourse_name());
-                                vocabProgressData.put("topic_image", topic.getTopic_image());
-                                vocabProgressData.put("vocabulary_progress", vocabularyProgress);
-                                vocabProgressList.add(vocabProgressData);
-                            }
-                        }
-
-                        // Calculate Grammar Progress for the course
-                        int grammarProgress = calculateProgress(
-                                grammarProgressService.countLearnedGrammar(userId, courseId),
-                                grammarProgressService.countNotLearnedGrammar(userId, courseId));
-
-                        if (grammarProgress > 0 && grammarProgress < 100) {
-                            Map<String, Object> grammarProgressData = new HashMap<>();
-                            grammarProgressData.put("course_id", courseId);
-                            grammarProgressData.put("course_name", myCourse.getCourse().getCourse_name());
-                            grammarProgressData.put("grammar_progress", grammarProgress);
-                            grammarProgressList.add(grammarProgressData);
-                        }
-                    }
-
-                    // Add vocab and grammar progress to progressSection
-                    progressSection.put("vocab", vocabProgressList);
-                    progressSection.put("grammar", grammarProgressList);
-                }
-            }
-
-            responseData.put("progress_section", progressSection);
             return objectMapper.writeValueAsString(responseData);
 
         } catch (Exception e) {
@@ -155,6 +100,70 @@ public class CourseHomePageService {
         return listGrammar;
     }
 
+    public String getProgressSection(Integer userId) {
+        // Validate that the user exists
+        try {
+            Map<String, Object> responseData = new HashMap<>();
+
+            Optional<User> user = userService.getUserById(userId);
+            if (!user.isEmpty()) {
+                List<MyCourse> listMyCourses = myCourseService.getAllCourseByUserId(userId);
+                // Populate Progress Section
+                if (!listMyCourses.isEmpty()) {
+                    List<Map<String, Object>> vocabProgressList = new ArrayList<>();
+                    List<Map<String, Object>> grammarProgressList = new ArrayList<>();
+
+                    for (MyCourse myCourse : listMyCourses) {
+                        Integer courseId = myCourse.getCourse().getId();
+
+                        // Calculate Vocabulary Progress for each topic in the course
+                        List<VocabularyTopic> vocabTopics = vocabularyTopicService
+                                .getVocabularyTopicsByCourseId(courseId);
+                        for (VocabularyTopic topic : vocabTopics) {
+                            int vocabularyProgress = calculateProgress(
+                                    vocabularyProgressService.countVocabularyLearned(userId, topic.getId()),
+                                    vocabularyProgressService.countVocabularyNotLearned(userId, topic.getId()));
+
+                            if (vocabularyProgress >= 0 && vocabularyProgress < 100) {
+                                Map<String, Object> vocabProgressData = new HashMap<>();
+                                vocabProgressData.put("topic_id", topic.getId());
+                                vocabProgressData.put("topic_name", topic.getTopic_name());
+                                vocabProgressData.put("course_id", topic.getCourse().getId());
+                                vocabProgressData.put("course_name", topic.getCourse().getCourse_name());
+                                vocabProgressData.put("topic_image", topic.getTopic_image());
+                                vocabProgressData.put("vocabulary_progress", vocabularyProgress);
+                                vocabProgressList.add(vocabProgressData);
+                            }
+                        }
+
+                        // Calculate Grammar Progress for the course
+                        int grammarProgress = calculateProgress(
+                                grammarProgressService.countLearnedGrammar(userId, courseId),
+                                grammarProgressService.countNotLearnedGrammar(userId, courseId));
+
+                        if (grammarProgress >= 0 && grammarProgress < 100) {
+                            Map<String, Object> grammarProgressData = new HashMap<>();
+                            grammarProgressData.put("course_id", courseId);
+                            grammarProgressData.put("course_name", myCourse.getCourse().getCourse_name());
+                            grammarProgressData.put("grammar_progress", grammarProgress);
+                            grammarProgressList.add(grammarProgressData);
+                        }
+                    }
+
+                    // Add vocab and grammar progress to progressSection
+                    responseData.put("vocab", vocabProgressList);
+                    responseData.put("grammar", grammarProgressList);
+
+                }
+            }
+
+            return objectMapper.writeValueAsString(responseData);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching data for the main page", e);
+        }
+    }
+
     /**
      * Helper method to calculate progress percentage.
      */
@@ -163,4 +172,22 @@ public class CourseHomePageService {
         return total == 0 ? 0 : (int) Math.ceil((double) learned * 100 / total);
     }
 
+    public List<Map<String, Object>> getCustomVocabularyTopicsByCourseId(Integer courseId) {
+        List<VocabularyTopic> topics = vocabularyTopicService.getVocabularyTopicsByCourseId(courseId);
+        List<Map<String, Object>> topicsWithData = new ArrayList<>();
+    
+        for (VocabularyTopic topic : topics) {
+            int totalWords = vocabularyService.countVocabularyByTopicId(topic.getId());
+    
+            Map<String, Object> topicData = new HashMap<>();
+            topicData.put("total_word", totalWords);
+            topicData.put("topic_id", topic.getId());
+            topicData.put("topic_name", topic.getTopic_name());
+            topicData.put("topic_description", topic.getTopic_description());
+    
+            topicsWithData.add(topicData);
+        }
+    
+        return topicsWithData;
+    }
 }

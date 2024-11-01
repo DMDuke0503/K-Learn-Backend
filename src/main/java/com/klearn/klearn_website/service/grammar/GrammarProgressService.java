@@ -54,6 +54,7 @@ public class GrammarProgressService {
                         new GrammarProgressId(userId, grammar.getId(), courseId),
                         false,
                         is_finish_quiz,
+                        false,
                         LocalDateTime.now(),
                         false,
                         user.get(),
@@ -87,6 +88,16 @@ public class GrammarProgressService {
     public void markGrammarQuizAsFinished(Integer userId, Integer grammarId, Integer courseId) {
         if (grammarProgressMapper.existsByUserIdAndGrammarIdAndCourseId(userId, grammarId, courseId)) {
             grammarProgressMapper.markGrammarQuizAsFinished(userId, grammarId, courseId);
+        } else {
+            throw new RuntimeException(
+                    "Grammar progress not found for user ID: " + userId + " and grammar ID: " + grammarId);
+        }
+    }
+
+    // Mark a Grammar quiz as failed
+    public void markGrammarQuizAsFailed(Integer userId, Integer grammarId, Integer courseId) {
+        if (grammarProgressMapper.existsByUserIdAndGrammarIdAndCourseId(userId, grammarId, courseId)) {
+            grammarProgressMapper.markGrammarQuizAsFailed(userId, grammarId, courseId);
         } else {
             throw new RuntimeException(
                     "Grammar progress not found for user ID: " + userId + " and grammar ID: " + grammarId);
