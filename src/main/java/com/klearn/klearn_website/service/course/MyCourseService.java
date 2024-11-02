@@ -54,15 +54,22 @@ public class MyCourseService {
                 course);
 
         // Insert into the database
-        myCourseMapper.insertMyCourse(myCourse);
+        MyCourse existCourse = myCourseMapper.getMyCourseByUserIdAndCourseId(myCourseDTOIn.getUser_id(),
+                myCourseDTOIn.getCourse_id());
 
-        List<VocabularyTopic> listTopics = vocabularyTopicService.getVocabularyTopicsByCourseId(course.getId());
+        if (existCourse != null) {
+            myCourseMapper.updateMyCourse(myCourse);
+        } else {
+            myCourseMapper.insertMyCourse(myCourse);
 
-        for (VocabularyTopic topic : listTopics) {
-            vocabularyProgressService.getVocabularyProgressByUserIdAndTopicId(user.getId(), topic.getId());
+            List<VocabularyTopic> listTopics = vocabularyTopicService.getVocabularyTopicsByCourseId(course.getId());
+
+            for (VocabularyTopic topic : listTopics) {
+                vocabularyProgressService.getVocabularyProgressByUserIdAndTopicId(user.getId(), topic.getId());
+            }
+
+            grammarProgressService.getGrammarProgressByUserIdAndGrammarId(user.getId(), course.getId());
         }
-
-        grammarProgressService.getGrammarProgressByUserIdAndGrammarId(user.getId(), course.getId());
 
     }
 
@@ -71,10 +78,29 @@ public class MyCourseService {
      * @param userId
      * @return
      */
-    List<MyCourse> getAllCourseByUserId(Integer userId) {
+    public List<MyCourse> getAllCourseByUserId(Integer userId) {
         return myCourseMapper.getMyCourseByUserId(userId);
     }
 
+    /**
+     * 
+     * @param userId
+     * @return
+     */
+    public Boolean existsMyCourseByUserIdAndCourseId(Integer userId, Integer courseId) {
+        return myCourseMapper.existsMyCourseByUserIdAndCourseId(userId, courseId);
+    }
+
+    /*
+     * 
+     */
+    public String myCoursePaymentStatus(Integer userId, Integer courseId) {
+        MyCourse myCourse = myCourseMapper.getMyCourseByUserIdAndCourseId(userId, courseId);
+        if (myCourse == null) {
+            return "";
+        }
+        return myCourse.getPayment_status();
+    }
     /**
      * Get MyCourse details by user ID.
      *
@@ -85,23 +111,22 @@ public class MyCourseService {
         try {
             List<MyCourse> listMyCourses = myCourseMapper.getMyCourseByUserId(userId);
             if (listMyCourses.isEmpty()) {
-                return "{}";
+                return "[]";
             }
-
-            Map<String, Object> responseData = new HashMap<>();
-
+    
+            List<Map<String, Object>> responseData = new ArrayList<>();
+    
             for (MyCourse myCourse : listMyCourses) {
                 Map<String, Object> courseData = new HashMap<>();
                 courseData.put("id", myCourse.getCourse().getId());
                 courseData.put("name", myCourse.getCourse().getCourse_name());
-
+    
                 // Calculate the progress of Grammar
                 int learnedGrammar = grammarProgressService.countLearnedGrammar(userId, myCourse.getCourse().getId());
-                int notLearnedGrammar = grammarProgressService.countNotLearnedGrammar(userId,
-                        myCourse.getCourse().getId());
+                int notLearnedGrammar = grammarProgressService.countNotLearnedGrammar(userId, myCourse.getCourse().getId());
                 int grammarProgress = (learnedGrammar + notLearnedGrammar) == 0 ? 0
                         : (int) Math.ceil((double) learnedGrammar * 100 / (learnedGrammar + notLearnedGrammar));
-
+    
                 // Calculate the progress of Vocabulary
                 int vocabProgress = 0;
                 List<VocabularyTopic> topics = vocabularyTopicService
@@ -111,12 +136,11 @@ public class MyCourseService {
                     int totalTopics = 0;
                     for (VocabularyTopic topic : topics) {
                         int learnedWords = vocabularyProgressService.countVocabularyLearned(userId, topic.getId());
-                        int notLearnedWords = vocabularyProgressService.countVocabularyNotLearned(userId,
-                                topic.getId());
+                        int notLearnedWords = vocabularyProgressService.countVocabularyNotLearned(userId, topic.getId());
                         int totalWords = learnedWords + notLearnedWords;
                         int topicProgress = (totalWords == 0) ? 0
                                 : (int) Math.ceil((double) learnedWords * 100 / totalWords);
-
+    
                         if (topicProgress >= 80) {
                             learnedTopics++;
                         }
@@ -124,17 +148,18 @@ public class MyCourseService {
                     }
                     vocabProgress = totalTopics == 0 ? 0 : (int) Math.ceil((double) learnedTopics * 100 / totalTopics);
                 }
-
+    
                 // Calculate overall course progress
                 courseData.put("progress", (int) Math.ceil(((double) grammarProgress + (double) vocabProgress) / 2));
-                responseData.put("course_" + myCourse.getCourse().getId(), courseData);
+                responseData.add(courseData); // Thêm vào danh sách thay vì một map
             }
-
+    
             return objectMapper.writeValueAsString(responseData);
         } catch (Exception e) {
             throw new RuntimeException("Error fetching my course", e);
         }
     }
+    
 
     /**
      * Get Vocabulary progress by user ID and course ID.

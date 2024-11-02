@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @AllArgsConstructor
 @RestController
@@ -122,4 +124,12 @@ public class MyCourseController {
         String progress = myCourseService.getMyCourseByUserId(user.getId());
         return ResponseEntity.ok(progress);
     }
+
+    @GetMapping("/payment_status/{courseId}")
+    public String myCoursePaymentStatus(@PathVariable Integer courseId) {
+        User user = userService.getAuthenticatedUser();
+
+        return myCourseService.myCoursePaymentStatus(user.getId(), courseId);
+    }
+    
 }

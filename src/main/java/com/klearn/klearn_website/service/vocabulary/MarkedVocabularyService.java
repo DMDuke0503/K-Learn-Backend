@@ -1,6 +1,5 @@
 package com.klearn.klearn_website.service.vocabulary;
 
-import java.lang.StackWalker.Option;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
@@ -74,11 +73,19 @@ public class MarkedVocabularyService {
      * @param vocabularyId
      */
     public void softDelete(Integer vocabularyId) {
-        markedVocabularyMapper.deleteById(vocabularyId);
+        markedVocabularyMapper.deleteByVocabularyId(vocabularyId);
     }
 
     public MarkedVocabulary findAllByUserIdAndVocabId(Integer userId, Integer vocabId) {
         Optional<MarkedVocabulary> markedVocab = markedVocabularyMapper.findAllByUserIdAndVocabId(userId, vocabId);
         return markedVocab.orElse(null); // Unwrap the Optional safely
+    }
+
+    public Boolean existsMarkedVocab(Integer userId, Integer vocabId) {
+        Optional<MarkedVocabulary> markedVocab = markedVocabularyMapper.findAllByUserIdAndVocabId(userId, vocabId);
+        if (markedVocab.isEmpty()) {
+            return false;
+        } else return true;
+        
     }
 }
