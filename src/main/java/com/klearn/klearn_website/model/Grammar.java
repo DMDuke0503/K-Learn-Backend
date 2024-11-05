@@ -1,6 +1,7 @@
 package com.klearn.klearn_website.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,19 +21,26 @@ public class Grammar {
     @Column(name = "id")
     private Integer id;
 
+    @NotNull(message = "Grammar name cannot be null")
+    @Size(min = 1, max = 255, message = "Grammar name must be between 1 and 255 characters")
     @Column(name = "grammar_name", nullable = false, length = 255)
     private String grammar_name;
 
     // Use NVARCHAR(MAX) for large text fields in SQL Server
+    @Lob
     @Column(name = "grammar_description", columnDefinition = "NVARCHAR(MAX)")
     private String grammar_description;
 
+    @Lob
     @Column(name = "explanation", columnDefinition = "NVARCHAR(MAX)")
     private String explanation;
 
+    @Lob
     @Column(name = "example", columnDefinition = "NVARCHAR(MAX)")
     private String example;
 
+    @NotNull(message = "Lesson number cannot be null")
+    @Min(value = 1, message = "Lesson number must be greater than or equal to 1")
     @Column(name = "lesson_number")
     private Integer lesson_number;
 
@@ -44,6 +52,7 @@ public class Grammar {
     private Boolean is_deleted;
 
     // Many-to-One relationship with Course
+    @NotNull(message = "Course cannot be null")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", referencedColumnName = "id", nullable = false)
     private Course course;

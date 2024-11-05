@@ -2,6 +2,7 @@ package com.klearn.klearn_website.model;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,14 +21,15 @@ public class MarkedVocabulary {
     @Column(name = "id")
     private Integer id;
 
-    // Use DATETIME2 for SQL Server compatibility
+    @NotNull(message = "Last modified timestamp cannot be null")
     @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    // Set a default value for is_deleted
+    @NotNull(message = "Deletion status cannot be null")
     @Column(name = "is_deleted", nullable = false)
     private Boolean is_deleted = false;
 
+    @NotNull(message = "User cannot be null")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
@@ -35,4 +37,14 @@ public class MarkedVocabulary {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vocabulary_id", referencedColumnName = "id", nullable = false)
     private Vocabulary vocabulary;
+
+    @PrePersist
+    public void prePersist() {
+        this.last_modified = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.last_modified = LocalDateTime.now();
+    }
 }

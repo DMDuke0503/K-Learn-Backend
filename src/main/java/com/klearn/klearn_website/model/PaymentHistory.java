@@ -1,7 +1,8 @@
 package com.klearn.klearn_website.model;
 
 import jakarta.persistence.*;
-
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,29 +24,46 @@ public class PaymentHistory {
     @Column(name = "id")
     private Integer id;
 
-    // Use DATETIME2 for SQL Server compatibility
+    @NotNull(message = "Transaction date cannot be null")
     @Column(name = "date_transaction", columnDefinition = "DATETIME2")
     private LocalDateTime date_transaction;
 
-    // Specify precision and scale for BigDecimal mapping in SQL Server
-    @Column(name = "transaction_price", precision = 18, scale = 2)
+    @NotNull(message = "Transaction price cannot be null")
+    @PositiveOrZero(message = "Transaction price must be zero or positive")
+    @Column(name = "transaction_price", precision = 18, scale = 0) 
     private BigDecimal transaction_price;
 
-    @Column(name = "transaction_status")
+    @NotNull(message = "Transaction status cannot be null")
+    @Column(name = "transaction_status", length = 50)
     private String transaction_status;
 
+    @NotNull(message = "Last modified timestamp cannot be null")
     @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
-    // Set a default value for is_deleted
+    @NotNull(message = "Deletion status cannot be null")
     @Column(name = "is_deleted", nullable = false)
     private Boolean is_deleted = false;
 
+    @NotNull(message = "User cannot be null")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
+    @NotNull(message = "Course cannot be null")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id", referencedColumnName = "id", nullable = false)
     private Course course;
+
+    // Lifecycle callbacks to manage date_transaction and last_modified timestamps
+    @PrePersist
+    public void prePersist() {
+        this.date_transaction = LocalDateTime.now();
+        this.last_modified = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.last_modified = LocalDateTime.now();
+    }
 }

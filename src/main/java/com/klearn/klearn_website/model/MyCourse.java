@@ -1,6 +1,7 @@
 package com.klearn.klearn_website.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,19 +20,24 @@ import java.util.Objects;
 public class MyCourse {
 
     @EmbeddedId
+    @NotNull(message = "Composite key cannot be null")
     private MyCourseId id;
 
     // Use DATETIME2 for SQL Server compatibility
+    @NotNull(message = "Date of registration cannot be null")
     @Column(name = "date_registration", columnDefinition = "DATETIME2")
     private LocalDateTime date_registration;
 
+    @NotNull(message = "Payment status cannot be null")
     @Column(name = "payment_status")
     private String payment_status;
 
+    @NotNull(message = "Last modified timestamp cannot be null")
     @Column(name = "last_modified", columnDefinition = "DATETIME2")
     private LocalDateTime last_modified;
 
     // Set a default value for is_deleted
+    @NotNull(message = "Deletion status cannot be null")
     @Column(name = "is_deleted", nullable = false)
     private Boolean is_deleted = false;
 
@@ -43,22 +49,32 @@ public class MyCourse {
     @JoinColumn(name = "course_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Course course;
 
+    // Lifecycle callbacks to manage date_registration and last_modified timestamps
+    @PrePersist
+    public void prePersist() {
+        this.date_registration = LocalDateTime.now();
+        this.last_modified = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.last_modified = LocalDateTime.now();
+    }
+
     @Embeddable
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MyCourseId implements Serializable {
 
+        @NotNull(message = "User ID cannot be null")
         @Column(name = "user_id")
         private Integer user_id;
 
+        @NotNull(message = "Course ID cannot be null")
         @Column(name = "course_id")
         private Integer course_id;
-
-        public MyCourseId() {
-        }
-
-        public MyCourseId(Integer user_id, Integer course_id) {
-            this.user_id = user_id;
-            this.course_id = course_id;
-        }
 
         @Override
         public boolean equals(Object o) {
