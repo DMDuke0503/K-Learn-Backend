@@ -5,8 +5,6 @@ import com.klearn.klearn_website.dto.dtoin.RegisterDTOIn;
 import com.klearn.klearn_website.dto.dtoout.JwtAuthResponseDTOOut;
 import com.klearn.klearn_website.service.auth.AuthService;
 import com.klearn.klearn_website.service.user.UserService;
-
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +33,7 @@ public class AuthController {
      * @throws UsernameNotFoundException if the username or email does not exist.
      */
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthResponseDTOOut> login(@Valid @RequestBody LoginDTOIn loginDTOIn) {
+    public ResponseEntity<JwtAuthResponseDTOOut> login(@RequestBody LoginDTOIn loginDTOIn) {
         // Authenticate the user and generate a JWT token
         String token = authService.login(loginDTOIn);
 
@@ -72,7 +70,7 @@ public class AuthController {
      * @return JwtAuthResponseDTOOut containing the JWT access token and default role as "user".
      */
     @PostMapping("/register")
-    public ResponseEntity<JwtAuthResponseDTOOut> register(@Valid @RequestBody RegisterDTOIn registerDTOIn) {
+    public ResponseEntity<JwtAuthResponseDTOOut> register(@RequestBody RegisterDTOIn registerDTOIn) {
         // Register the user and generate a JWT token
         String token = authService.register(registerDTOIn);
 

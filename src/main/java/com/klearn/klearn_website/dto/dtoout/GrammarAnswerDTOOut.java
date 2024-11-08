@@ -1,7 +1,6 @@
 package com.klearn.klearn_website.dto.dtoout;
 
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +10,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+public class GrammarAnswerDTOOut {
+    private Integer answer_id;
 
-public class GrammarQuestionDTOOut {
+    private String user_answer;
+
+    private Boolean is_correct;
+
     private Integer question_id;
 
     private String type;
