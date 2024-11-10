@@ -26,7 +26,6 @@ public class Grammar {
     @Column(name = "grammar_name", nullable = false, length = 255)
     private String grammar_name;
 
-    // Use NVARCHAR(MAX) for large text fields in SQL Server
     @Lob
     @Column(name = "grammar_description", columnDefinition = "NVARCHAR(MAX)")
     private String grammar_description;
@@ -53,7 +52,7 @@ public class Grammar {
 
     // Many-to-One relationship with Course
     @NotNull(message = "Course cannot be null")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", referencedColumnName = "id", nullable = false)
     private Course course;
 }
